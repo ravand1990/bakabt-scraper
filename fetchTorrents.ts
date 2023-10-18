@@ -5,6 +5,7 @@ import RSS from "rss";
 import dotenv from "dotenv";
 import * as fs from "fs";
 import randomUA from "random-useragent"; // For user-agent rotation
+import serveIndex from "serve-index";
 
 if (!fs.existsSync(".env")) fs.writeFileSync(".env", "cookie=\nbaseUrl=");
 
@@ -24,8 +25,21 @@ if (!fs.existsSync(TORRENTS_FOLDER)) {
   fs.mkdirSync(TORRENTS_FOLDER);
 }
 
+const publicDirectoryPath = "torrents";
+
 const app = express();
 const port = 3000;
+
+// Serve static files
+app.use("/torrents", express.static(publicDirectoryPath));
+
+// Allow directory browsing
+app.use(
+  "/torrents",
+  serveIndex(publicDirectoryPath, {
+    icons: true, // show icons before filenames
+  })
+);
 
 let feed = new RSS({
   title: "Freeleech Torrents",
