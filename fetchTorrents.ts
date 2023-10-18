@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 import * as fs from "fs";
 import randomUA from "random-useragent"; // For user-agent rotation
 
-if (!fs.existsSync(".env")) fs.writeFileSync(".env", "cookie=");
+if (!fs.existsSync(".env")) fs.writeFileSync(".env", "cookie=\nbaseUrl=");
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -15,7 +15,15 @@ if (!process.env.cookie) {
   process.exit();
 }
 
-const BASE_URL: string = "https://bakabt.me";
+const BASE_URL = process.env.baseUrl;
+const TRACKER_BASE_URL: string = "https://bakabt.me";
+const TORRENTS_FOLDER: string = "./torrents"; // Folder to store downloaded torrent files
+
+// Create the "torrents" folder if it doesn't exist
+if (!fs.existsSync(TORRENTS_FOLDER)) {
+  fs.mkdirSync(TORRENTS_FOLDER);
+}
+
 const app = express();
 const port = 3000;
 
@@ -23,7 +31,7 @@ let feed = new RSS({
   title: "Freeleech Torrents",
   description: "List of freeleech torrents from Bakabt",
   feed_url: `http://localhost:${port}/rss`,
-  site_url: BASE_URL,
+  site_url: TRACKER_BASE_URL,
 });
 
 // Declare a set to keep track of added torrent URLs
@@ -37,7 +45,7 @@ function getRandomDelay() {
 async function updateFeed(): Promise<void> {
   try {
     const response: AxiosResponse<string> = await axios.get(
-      `${BASE_URL}/browse.php`,
+      `${TRACKER_BASE_URL}/browse.php`,
       {
         headers: {
           "User-Agent": randomUA.getRandom(),
@@ -54,9 +62,10 @@ async function updateFeed(): Promise<void> {
       if (freeleechIcon.length) {
         const torrentLink = $(element).find(".title").attr("href");
         const torrentName = $(element).find(".title").text().trim();
+        const torrentNameSanitized = sanitizeFilename(torrentName);
 
         if (torrentLink && !addedTorrents.has(torrentLink)) {
-          const detailPageLink = BASE_URL + torrentLink;
+          const detailPageLink = TRACKER_BASE_URL + torrentLink;
 
           const torrentPageResponse: AxiosResponse<string> = await axios.get(
             detailPageLink,
@@ -78,12 +87,24 @@ async function updateFeed(): Promise<void> {
           );
 
           if (downloadLink) {
+            const torrentFilePath = `${TORRENTS_FOLDER}/${torrentNameSanitized}.torrent`;
+
+            // Download and save the torrent file
+            const torrentFileResponse = await axios.get(
+              TRACKER_BASE_URL + downloadLink,
+              {
+                responseType: "stream",
+              }
+            );
+            const writeStream = fs.createWriteStream(torrentFilePath);
+            torrentFileResponse.data.pipe(writeStream);
+
             feed.item({
               title: torrentName,
               description: torrentName,
               url: detailPageLink,
               enclosure: {
-                url: BASE_URL + downloadLink,
+                url: `${BASE_URL}/torrents/${torrentNameSanitized}.torrent`, // Updated URL to point to the saved torrent file
                 type: "application/x-bittorrent",
               },
               date: date,
@@ -100,6 +121,11 @@ async function updateFeed(): Promise<void> {
   } catch (error) {
     console.error("Error updating feed:", error);
   }
+}
+
+function sanitizeFilename(filename: String) {
+  // Replace characters that are not allowed in filenames with underscores
+  return filename.replace(/[/\\?%*:|"<>]/g, "_");
 }
 
 app.get("/", (req, res) => {
