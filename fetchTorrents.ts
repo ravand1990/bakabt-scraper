@@ -118,7 +118,9 @@ async function updateFeed(): Promise<void> {
               description: torrentName,
               url: detailPageLink,
               enclosure: {
-                url: `${BASE_URL}/torrents/${torrentNameSanitized}.torrent`, // Updated URL to point to the saved torrent file
+                url: encodeURI(
+                  `${BASE_URL}/torrents/${torrentNameSanitized}.torrent`
+                ), // Updated URL to point to the saved torrent file
                 type: "application/x-bittorrent",
               },
               date: date,
