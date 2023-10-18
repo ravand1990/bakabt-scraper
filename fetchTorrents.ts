@@ -125,7 +125,7 @@ async function updateFeed(): Promise<void> {
 
 function sanitizeFilename(filename: String) {
   // Replace characters that are not allowed in filenames with underscores
-  return filename.replace(/[/\\?%*:|"<>]/g, "_");
+  return filename.replace(/[/\\?%*:|"<> ]/g, "_");
 }
 
 app.get("/", (req, res) => {
