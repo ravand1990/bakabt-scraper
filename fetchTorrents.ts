@@ -107,6 +107,10 @@ async function updateFeed(): Promise<void> {
             const torrentFileResponse = await axios.get(
               TRACKER_BASE_URL + downloadLink,
               {
+                headers: {
+                  "User-Agent": randomUA.getRandom(),
+                  Cookie: "bbtid=" + process.env.cookie,
+                },
                 responseType: "stream",
               }
             );
