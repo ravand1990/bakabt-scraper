@@ -1,0 +1,30 @@
+# Node modules and pnpm directories
+node_modules/
+.pnpm/
+
+# TypeScript build output
+dist/
+out/
+
+# Runtime data
+pids/
+logs/
+*.log
+
+# Miscellaneous
+*.pid
+*.seed
+*.pid.lock
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+
+.env
