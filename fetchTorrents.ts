@@ -163,7 +163,7 @@ app.listen(port, () => {
   // Using setTimeout for controlled intervals
   async function periodicUpdate() {
     await updateFeed();
-    setTimeout(periodicUpdate, 1000 * 60 * 5 + getRandomDelay()); // Update every 5 minutes + random delay
+    setTimeout(periodicUpdate, 1000 * 60 * 10 + getRandomDelay()); // Update every 5 minutes + random delay
   }
 
   periodicUpdate(); // Initial call
