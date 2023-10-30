@@ -53,7 +53,7 @@ const addedTorrents = new Set();
 
 // Function to get a random delay (for instance between 1-5 seconds)
 function getRandomDelay() {
-  return Math.random() * 5000 + 4000;
+  return Math.random() * 10000 + 5000;
 }
 
 async function updateFeed(): Promise<void> {
@@ -65,7 +65,7 @@ async function updateFeed(): Promise<void> {
           "User-Agent": randomUA.getRandom(),
           Cookie: "bbtid=" + process.env.cookie,
         },
-        timeout: 5000, // 5 seconds timeout
+        timeout: 10000, // 10 seconds timeout
       }
     );
 
@@ -88,7 +88,7 @@ async function updateFeed(): Promise<void> {
                 "User-Agent": randomUA.getRandom(),
                 Cookie: "bbtid=" + process.env.cookie,
               },
-              timeout: 5000, // 5 seconds timeout
+              timeout: 15000, // 15 seconds timeout
             }
           );
 
@@ -163,7 +163,7 @@ app.listen(port, () => {
   // Using setTimeout for controlled intervals
   async function periodicUpdate() {
     await updateFeed();
-    setTimeout(periodicUpdate, 1000 * 60 * 10 + getRandomDelay()); // Update every 5 minutes + random delay
+    setTimeout(periodicUpdate, 1000 * 60 * 10 + getRandomDelay()); // Update every 10 minutes + random delay
   }
 
   periodicUpdate(); // Initial call
