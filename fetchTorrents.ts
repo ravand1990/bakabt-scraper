@@ -53,13 +53,13 @@ const addedTorrents = new Set();
 
 // Function to get a random delay (for instance between 1-5 seconds)
 function getRandomDelay() {
-  return Math.random() * 4000 + 1000;
+  return Math.random() * 5000 + 4000;
 }
 
 async function updateFeed(): Promise<void> {
   try {
     const response: AxiosResponse<string> = await axios.get(
-      `${TRACKER_BASE_URL}/browse.php`,
+      `${TRACKER_BASE_URL}/browse.php?limit=100`,
       {
         headers: {
           "User-Agent": randomUA.getRandom(),
